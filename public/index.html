@@ -22,6 +22,10 @@
             min-width: 400px;
             float: left;
         }
+
+        hr {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -42,6 +46,29 @@
             <hr>
     
             <button @click="getProjects">GET Projects</button>
+
+            <hr>
+
+            <input type="text" v-model="newProject.name" placeholder="Название объекта">
+            <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
+            <input type="text" v-model="newProject.district" placeholder="Район города">
+            <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
+            <button @click="createProjectReq">Create Project</button>
+
+            <hr>
+
+            <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
+            <button @click="getProjectById">GET Project by ID</button>
+
+            <hr>
+
+            <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
+            <input type="text" v-model="newProject.name" placeholder="Название объекта">
+            <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
+            <input type="text" v-model="newProject.district" placeholder="Район города">
+            <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
+            <button @click="patchProjectById">Patch Project</button>
+
         </div>
     </div>
     
@@ -54,7 +81,8 @@
                     password: "",
                     goodRes: {},
                     badRes: {},
-                    token: 1
+                    token: 1,
+                    newProject: {}
                 }
             },
             methods: {
@@ -83,6 +111,59 @@
                         method: 'get',
                         headers: {
                             "authorization": this.token
+                        }
+                    })
+                    .then(this.setGoodRes)
+                    .catch(this.setBadRes)
+                },
+
+                createProjectReq() {
+                    axios({
+                        url: '/api/project',
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": this.token
+                        },
+                        data: {
+                            "name": this.newProject.name,
+                            "coords": this.newProject.coords,
+                            "district": this.newProject.district,
+                            "website": this.newProject.website
+                        }
+                    })
+                    .then(response => {
+                        this.setGoodRes(response)
+                        this.newProject.Id = response.data.data.id
+                    })
+                    .catch(this.setBadRes)
+                },
+
+                getProjectById() {
+                    axios({
+                        url: `/api/project/${this.newProject.Id}`,
+                        method: 'get',
+                        headers: {
+                            "authorization": this.token
+                        }
+                    })
+                    .then(this.setGoodRes)
+                    .catch(this.setBadRes)
+                },
+
+                patchProjectById() {
+                    axios({
+                        url: `/api/project/${this.newProject.Id}`,
+                        method: 'patch',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": this.token
+                        },
+                        data: {
+                            "name": this.newProject.name,
+                            "coords": this.newProject.coords,
+                            "district": this.newProject.district,
+                            "website": this.newProject.website
                         }
                     })
                     .then(this.setGoodRes)
