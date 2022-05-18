@@ -1,3 +1,4 @@
+const cors = require('cors')
 const express = require('express')
 const path = require('path')
 
@@ -8,6 +9,10 @@ serverApp.locals.PORT = process.env.PORT || 3000
 
 serverApp.use(express.json())
 serverApp.use(express.urlencoded({ extended: true }))
+
+serverApp.use(cors({
+    origin: '*'
+}))
 
 serverApp.use('/api', API)
 

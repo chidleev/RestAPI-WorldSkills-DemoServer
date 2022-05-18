@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='https://unpkg.com/vue@3'></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        #panel {
+            padding-left: 10px;
+            width: 40%;
+            min-width: 400px;
+            float: right;
+            border-left: 10px solid #f5f5f5;
+        }
+
+        #commands {
+            width: 50%;
+            min-width: 400px;
+            float: left;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="panel">
+            <p v-if="token">Token: {{token}} <button @click="deleteToken">Удалить токен</button></p>
+
+            <h1>Ответ сервера:</h1>
+            <p style="color:darkgreen; white-space: pre-wrap">{{goodRes}}</p>
+            <p style="color:darkred; white-space: pre-wrap">{{badRes}}</p>
+        </div>
+
+        <div id="commands">
+            <input type="text" v-model="login" placeholder="Логин">
+            <input type="text" v-model="password" placeholder="Пароль">
+            <button @click="loginReq">Login</button>
+    
+            <hr>
+    
+            <button @click="getProjects">GET Projects</button>
+
+            <hr>
+
+            <input type="text" v-model="newProject.name" placeholder="Название объекта">
+            <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
+            <input type="text" v-model="newProject.district" placeholder="Район города">
+            <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
+            <button @click="createProjectReq">Create Project</button>
+
+            <hr>
+
+            <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
+            <button @click="getProjectById">GET Project by ID</button>
+
+            <hr>
+
+            <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
+            <input type="text" v-model="newProject.name" placeholder="Название объекта">
+            <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
+            <input type="text" v-model="newProject.district" placeholder="Район города">
+            <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
+            <button @click="patchProjectById">Patch Project</button>
+
+        </div>
+    </div>
+    
+
+    <script>
+        const settings = {
+            data() {
+                return {
+                    login: "",
+                    password: "",
+                    goodRes: {},
+                    badRes: {},
+                    token: 1,
+                    newProject: {},
+
+                    HOST: '192.168.1.203'
+                }
+            },
+            methods: {
+                loginReq() {
+                    axios({
+                        url: `${this.HOST}/api/login`,
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        data: {
+                            "login": this.login,
+                            "password": this.password
+                        }
+                    })
+                    .then(response => {
+                        this.setGoodRes(response)
+                        this.token = response.data.data.token
+                    })
+                    .catch(this.setBadRes)
+                },
+
+                getProjects() {
+                    axios({
+                        url: `${this.HOST}/api/project`,
+                        method: 'get',
+                        headers: {
+                            "authorization": this.token
+                        }
+                    })
+                    .then(this.setGoodRes)
+                    .catch(this.setBadRes)
+                },
+
+                createProjectReq() {
+                    axios({
+                        url: `${this.HOST}/api/project`,
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": this.token
+                        },
+                        data: {
+                            "name": this.newProject.name,
+                            "coords": this.newProject.coords,
+                            "district": this.newProject.district,
+                            "website": this.newProject.website
+                        }
+                    })
+                    .then(response => {
+                        this.setGoodRes(response)
+                        this.newProject.Id = response.data.data.id
+                    })
+                    .catch(this.setBadRes)
+                },
+
+                getProjectById() {
+                    axios({
+                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
+                        method: 'get',
+                        headers: {
+                            "authorization": this.token
+                        }
+                    })
+                    .then(this.setGoodRes)
+                    .catch(this.setBadRes)
+                },
+
+                patchProjectById() {
+                    axios({
+                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
+                        method: 'patch',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": this.token
+                        },
+                        data: {
+                            "name": this.newProject.name,
+                            "coords": this.newProject.coords,
+                            "district": this.newProject.district,
+                            "website": this.newProject.website
+                        }
+                    })
+                    .then(this.setGoodRes)
+                    .catch(this.setBadRes)
+                },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                setGoodRes(res) {
+                    this.badRes = {}
+                    this.goodRes.status = res.status
+                    this.goodRes.contentType = res.headers["content-type"]
+                    this.goodRes.body = res.data
+                },
+
+                setBadRes(err) {
+                    this.goodRes = {}
+                    this.badRes.status = err.response.status
+                    this.badRes.contentType = err.response.headers["content-type"]
+                    this.badRes.body = err.response.data
+                },
+
+                deleteToken() {
+                    this.token = null
+                }
+            }
+        }
+
+        const app = Vue.createApp(settings).mount('div#app')
+    </script>
+</body>
+</html>
