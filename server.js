@@ -5,7 +5,7 @@ const path = require('path')
 const API = require('./API.js')
 
 const serverApp = express()
-serverApp.locals.PORT = process.env.PORT || 3000
+serverApp.locals.PORT = process.env.PORT || 3030
 
 serverApp.use(express.json())
 serverApp.use(express.urlencoded({ extended: true }))
