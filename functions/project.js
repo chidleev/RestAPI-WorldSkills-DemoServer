@@ -126,7 +126,6 @@ module.exports.patchById = function (req, res) {
         return
     }
 
-
     const project = projects.find(project => project.id == req.params.projectId)
 
     if (project) {
