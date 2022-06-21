@@ -1,18 +1,27 @@
-const fs = require('fs')
-const validUrl = require('valid-url')
-const projects = require('../dataStore').projects
+const express = require('express')
+const validator = require('validator')
 
+const dataBase = require('../dataBase')
 
-module.exports.getAll = function (req, res) {
-    res.json({
-        data: {
-            projects: projects
-        }
+const API = express()
+
+API.get('/', (req, res) => {
+    dataBase.Projects.findAll({
+        attributes: ['id', 'name']
     })
-}
+        .then(projects => {
+            res.json({
+                data: {
+                    projects: projects
+                }
+            })
+        })
+        .catch(error => {
+            res.status(500).json(error)
+        })
+})
 
-
-module.exports.create = function (req, res) {
+API.post('/', (req, res) => {
     const error = {
         code: 422,
         message: "Validation error",
@@ -41,7 +50,7 @@ module.exports.create = function (req, res) {
     if (!req.body.website) {
         error.errors.website = ["Поле сайта объекта не может быть пустым"]
     }
-    else if (!validUrl.isUri(req.body.website)) {
+    else if (!validator.isURL(req.body.website)) {
         error.errors.website = ["Поле сайта объекта должно быть ссылкой"]
     }
 
@@ -50,45 +59,45 @@ module.exports.create = function (req, res) {
         return
     }
 
-
-    const nextId = projects.length
-    projects.push({
-        id: nextId,
-        name: req.body.name,
-        coords: req.body.coords,
-        district: req.body.district,
-        website: req.body.website
-    })
-
-    fs.writeFile('./dataStore/projects.json', JSON.stringify(projects, null, '\t'), err => {
-        if (err) {
+    dataBase.Projects.create(req.body)
+        .then(project => {
+            res.json({
+                data: {
+                    id: project.id
+                }
+            })
+        })
+        .catch(error => {
             error.code = 500
             error.message = "Не удалось записать данные о новом проекте"
             res.status(error.code).json({ error })
-            return
-        }
-        res.json({
-            data: {
-                id: nextId
-            }
         })
+})
+
+API.get('/:projectId', (req, res) => {
+    dataBase.Projects.findByPk(req.params.projectId, {
+        include: [{
+            model: dataBase.Houses,
+            as: 'houses'
+        }]
     })
-}
-
-
-module.exports.getById = function (req, res) {
-    const project = projects.find(project => project.id == req.params.projectId)
-
-    if (project) {
-        res.json({
-            data: project
+        .then(project => {
+            if (project) {
+                res.json({
+                    data: project
+                })
+            }
+            else res.sendStatus(404)
         })
-    }
-    else res.sendStatus(404)
-}
+        .catch(error => {
+            error.code = 500
+            error.message = "Не удалось получить данные о проекте"
+            res.status(error.code).json({ error })
+        })
+})
 
 
-module.exports.patchById = function (req, res) {
+API.patch('/:projectId', (req, res) => {
     const error = {
         code: 422,
         message: "Validation error",
@@ -117,7 +126,7 @@ module.exports.patchById = function (req, res) {
     if (!req.body.website) {
         error.errors.website = ["Поле сайта объекта не может быть пустым"]
     }
-    else if (!validUrl.isUri(req.body.website)) {
+    else if (!validator.isURL(req.body.website)) {
         error.errors.website = ["Поле сайта объекта должно быть ссылкой"]
     }
 
@@ -126,26 +135,20 @@ module.exports.patchById = function (req, res) {
         return
     }
 
-    const project = projects.find(project => project.id == req.params.projectId)
-
-    if (project) {
-        projects[projects.indexOf(project)] = {
-            id: +req.params.projectId,
-            name: req.body.name,
-            coords: req.body.coords,
-            district: req.body.district,
-            website: req.body.website
+    dataBase.Projects.update(req.body, {
+        where: {
+            id: +req.params.projectId //плюс впереди стоит для того, чтобы сделать из строки число
         }
-
-        fs.writeFile('./dataStore/projects.json', JSON.stringify(projects, null, '\t'), err => {
-            if (err) {
-                error.code = 500
-                error.message = "Не удалось записать данные об изменении проекта"
-                res.status(error.code).json({ error })
-                return
-            }
-            res.sendStatus(204)
+    })
+        .then(project => {
+            if (project) res.sendStatus(204)
+            else res.sendStatus(404)
         })
-    }
-    else res.sendStatus(404)
-}
+        .catch(error => {
+            error.code = 500
+            error.message = "Не удалось записать данные об изменении проекта"
+            res.status(error.code).json({ error })
+        })
+})
+
+module.exports = API

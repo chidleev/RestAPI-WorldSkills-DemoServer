@@ -12,47 +12,89 @@
 <body>
     <div id="app">
         <div id="commands">
-            <div class="block">
-                <input type="text" v-model="login" placeholder="Логин">
-                <input type="text" v-model="password" placeholder="Пароль">
-                <button @click="loginReq">Login</button>
-                <div></div>
-                <button @click="getProjects">GET Projects</button>
+            <div id="buttons">
+                <button v-for="(name, key) in { project: 'Проекты', house: 'Дома', section: 'Подъезды', flat: 'Квартиры' }" @click="currentTab = key" :class="{'active': currentTab == key}">{{name}}</button>
             </div>
 
-            <div class="block">
-                <input type="text" v-model="newProject.name" placeholder="Название объекта">
-                <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
-                <input type="text" v-model="newProject.district" placeholder="Район города">
-                <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
-                <button @click="createProjectReq">Create Project</button>
+            <div v-if="currentTab == 'project'" class="tab">
+                <div class="block">
+                    <span>Получить все проекты</span>
+                    <div></div>
+                    <button @click="getProjects">GET Projects</button>
+                </div>
+    
+                <div class="block">
+                    <span>Получить проект по ID</span>
+                    <input type="text" v-model.number="Project.Id" placeholder="ID объекта">
+                    <button @click="getProjectById">GET Project by ID</button>
+                </div>
+    
+                <div class="block">
+                    <span>Создание проекта</span>
+                    <input type="text" v-model="Project.name" placeholder="Название объекта">
+                    <input type="text" v-model="Project.coords" placeholder="Координаты объекта">
+                    <input type="text" v-model="Project.district" placeholder="Район города">
+                    <input type="url" v-model="Project.website" placeholder="Сайт объекта">
+                    <div></div>
+                    <button @click="createProjectReq">Create Project</button>
+                </div>
+    
+                <div class="block">
+                    <span>Редактирование проекта по ID</span>
+                    <input type="text" v-model.number="Project.Id" placeholder="ID объекта">
+                    <input type="text" v-model="Project.name" placeholder="Название объекта">
+                    <input type="text" v-model="Project.coords" placeholder="Координаты  объекта">
+                    <input type="text" v-model="Project.district" placeholder="Район города">
+                    <input type="url" v-model="Project.website" placeholder="Сайт объекта">
+                    <button @click="patchProjectById">Patch Project</button>
+                </div>
+            </div>
+            
+            <div v-if="currentTab == 'house'" class="tab">
+                <div class="block">
+                    <span>Создание дома</span>
+                    <input type="text" v-model="House.project_id" placeholder="ID объекта">
+                    <input type="text" v-model="House.name" placeholder="Название дома">
+                    <input type="text" v-model="House.address" placeholder="Адрес объекта">
+                    <input type="number" min="1000" max="9999" v-model="House.built_year" placeholder="Год сдачи">
+                    <input type="number" min="1" max="4" v-model="House.built_quarter" placeholder="Квартал сдачи">
+                    <button @click="createHouseReq">Create House</button>
+                </div>
             </div>
 
-            <div class="block">
-                <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <button @click="getProjectById">GET Project by ID</button>
+            <div v-if="currentTab == 'section'" class="tab">
+                <div class="block">
+                    <span>Создание подъезда</span>
+                    <input type="text" v-model="Section.house_id" placeholder="ID объекта">
+                    <input type="text" v-model="Section.number" placeholder="Название дома">
+                    <input type="text" v-model="Section.floors" placeholder="Адрес объекта">
+                    <input type="number" min="2000" max="3000" v-model="Section.flats_on_floor" placeholder="Год сдачи">
+                    <input type="number" min="1" max="4" v-model="Section.starting_flat_number" placeholder="Квартал сдачи">
+                    <button @click="createSectionReq">Create Section</button>
+                </div>
             </div>
 
-            <div class="block">
-                <input type="text" v-model.number="newProject.Id" placeholder="ID объекта">
-                <input type="text" v-model="newProject.name" placeholder="Название объекта">
-                <input type="text" v-model="newProject.coords" placeholder="Координаты  объекта">
-                <input type="text" v-model="newProject.district" placeholder="Район города">
-                <input type="url" v-model="newProject.website" placeholder="Сайт объекта">
-                <button @click="patchProjectById">Patch Project</button>
+            <div v-if="currentTab == 'flat'" class="tab">
+
             </div>
         </div>
 
         <div id="panel">
-            <p v-if="token">Token: {{token}} <button @click="deleteToken">Удалить токен</button></p>
+            <div class="block">
+                <input type="text" v-model="login" placeholder="Логин">
+                <input type="text" v-model="password" placeholder="Пароль">
+                <button @click="loginReq">Login</button>
+            </div>
+            <div class="block">
+                <span>Token: {{token || "отсутствует"}}</span>
+                <button @click="deleteToken">Удалить токен</button>
+            </div>
 
-            <h1>Ответ сервера:</h1>
-            <p style="white-space: pre-wrap; background-color: rgb(240, 255, 240);">{{formatJSON(goodRes)}}</p>
-            <p style="white-space: pre-wrap; background-color: rgb(255, 240, 240);">{{formatJSON(badRes)}}</p>
+            <div id="response">
+                <h1>Ответ сервера:</h1>
+                <p style="white-space: pre-wrap; background-color: rgb(240, 255, 240);">{{formatJSON(goodRes)}}</p>
+                <p style="white-space: pre-wrap; background-color: rgb(255, 240, 240);">{{formatJSON(badRes)}}</p>
+            </div>
         </div>
     </div>
     
@@ -61,14 +103,18 @@
         const settings = {
             data() {
                 return {
+                    currentTab: 'project',
                     login: "",
                     password: "",
                     goodRes: {},
                     badRes: {},
                     token: 1,
-                    newProject: {},
+                    Project: {},
+                    House: {},
+                    Section: {},
+                    Flat: {},
 
-                    HOST: 'http://192.168.1.203:3000'
+                    HOST: /*'http://192.168.1.203:3000'*/''
                 }
             },
             methods: {
@@ -112,22 +158,22 @@
                             "authorization": this.token
                         },
                         data: {
-                            "name": this.newProject.name,
-                            "coords": this.newProject.coords,
-                            "district": this.newProject.district,
-                            "website": this.newProject.website
+                            "name": this.Project.name,
+                            "coords": this.Project.coords,
+                            "district": this.Project.district,
+                            "website": this.Project.website
                         }
                     })
                     .then(response => {
                         this.setGoodRes(response)
-                        this.newProject.Id = response.data.data.id
+                        this.Project.Id = response.data.data.id
                     })
                     .catch(this.setBadRes)
                 },
 
                 getProjectById() {
                     axios({
-                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
+                        url: `${this.HOST}/api/project/${this.Project.Id}`,
                         method: 'get',
                         headers: {
                             "authorization": this.token
@@ -139,17 +185,17 @@
 
                 patchProjectById() {
                     axios({
-                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
+                        url: `${this.HOST}/api/project/${this.Project.Id}`,
                         method: 'patch',
                         headers: {
                             "Content-Type": "application/json",
                             "authorization": this.token
                         },
                         data: {
-                            "name": this.newProject.name,
-                            "coords": this.newProject.coords,
-                            "district": this.newProject.district,
-                            "website": this.newProject.website
+                            "name": this.Project.name,
+                            "coords": this.Project.coords,
+                            "district": this.Project.district,
+                            "website": this.Project.website
                         }
                     })
                     .then(this.setGoodRes)

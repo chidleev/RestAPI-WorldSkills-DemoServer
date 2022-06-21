@@ -14,7 +14,9 @@
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "express": "^4.18.1",
-    "valid-url": "^1.0.9",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.21.0",
+    "validator": "^13.7.0",
     "vue": "^3.2.37"
   },
   "devDependencies": {
