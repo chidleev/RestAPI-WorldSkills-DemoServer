@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src='https://unpkg.com/vue@3'></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src='/scripts/vue/dist/vue.global.js'></script>
+    <script src='/scripts/axios/dist/axios.min.js'></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -66,13 +66,15 @@
                     goodRes: {},
                     badRes: {},
                     token: 1,
-                    newProject: {}
+                    newProject: {},
+
+                    HOST: 'http://192.168.1.203:3000'
                 }
             },
             methods: {
                 loginReq() {
                     axios({
-                        url: '/api/login',
+                        url: `${this.HOST}/api/login`,
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json"
@@ -91,7 +93,7 @@
 
                 getProjects() {
                     axios({
-                        url: '/api/project',
+                        url: `${this.HOST}/api/project`,
                         method: 'get',
                         headers: {
                             "authorization": this.token
@@ -103,7 +105,7 @@
 
                 createProjectReq() {
                     axios({
-                        url: '/api/project',
+                        url: `${this.HOST}/api/project`,
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json",
@@ -125,7 +127,7 @@
 
                 getProjectById() {
                     axios({
-                        url: `/api/project/${this.newProject.Id}`,
+                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
                         method: 'get',
                         headers: {
                             "authorization": this.token
@@ -137,7 +139,7 @@
 
                 patchProjectById() {
                     axios({
-                        url: `/api/project/${this.newProject.Id}`,
+                        url: `${this.HOST}/api/project/${this.newProject.Id}`,
                         method: 'patch',
                         headers: {
                             "Content-Type": "application/json",

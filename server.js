@@ -15,6 +15,7 @@ serverApp.use(cors({
 }))
 
 serverApp.use('/api', API)
+serverApp.use('/scripts', express.static(path.join(__dirname, 'node_modules')))
 
 serverApp.use((req, res, next) => {
     if (req.url.indexOf('.') == -1) {
@@ -24,6 +25,9 @@ serverApp.use((req, res, next) => {
 })
 
 serverApp.use('/', express.static(path.join(__dirname, 'public')))
+serverApp.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 serverApp.listen(serverApp.locals.PORT, () => {
     console.log(`Server running on port ${serverApp.locals.PORT}`)
