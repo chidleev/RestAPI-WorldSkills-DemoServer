@@ -18,18 +18,6 @@
 
             <div v-if="currentTab == 'project'" class="tab">
                 <div class="block">
-                    <span>Получить все проекты</span>
-                    <div></div>
-                    <button @click="getProjects">GET Projects</button>
-                </div>
-    
-                <div class="block">
-                    <span>Получить проект по ID</span>
-                    <input type="text" v-model.number="Project.Id" placeholder="ID объекта">
-                    <button @click="getProjectById">GET Project by ID</button>
-                </div>
-    
-                <div class="block">
                     <span>Создание проекта</span>
                     <input type="text" v-model="Project.name" placeholder="Название объекта">
                     <input type="text" v-model="Project.coords" placeholder="Координаты объекта">
@@ -41,12 +29,24 @@
     
                 <div class="block">
                     <span>Редактирование проекта по ID</span>
-                    <input type="text" v-model.number="Project.Id" placeholder="ID объекта">
+                    <input type="text" v-model.number="Project.id" placeholder="ID объекта">
                     <input type="text" v-model="Project.name" placeholder="Название объекта">
                     <input type="text" v-model="Project.coords" placeholder="Координаты  объекта">
                     <input type="text" v-model="Project.district" placeholder="Район города">
                     <input type="url" v-model="Project.website" placeholder="Сайт объекта">
                     <button @click="patchProjectById">Patch Project</button>
+                </div>
+
+                <div class="block">
+                    <span>Получить все проекты</span>
+                    <div></div>
+                    <button @click="getProjects">GET Projects</button>
+                </div>
+    
+                <div class="block">
+                    <span>Получить проект по ID</span>
+                    <input type="text" v-model.number="Project.id" placeholder="ID объекта">
+                    <button @click="getProjectById">GET Project by ID</button>
                 </div>
             </div>
             
@@ -56,26 +56,73 @@
                     <input type="text" v-model="House.project_id" placeholder="ID объекта">
                     <input type="text" v-model="House.name" placeholder="Название дома">
                     <input type="text" v-model="House.address" placeholder="Адрес объекта">
-                    <input type="number" min="1000" max="9999" v-model="House.built_year" placeholder="Год сдачи">
+                    <input type="number" min="2000" max="3000" v-model="House.built_year" placeholder="Год сдачи">
                     <input type="number" min="1" max="4" v-model="House.built_quarter" placeholder="Квартал сдачи">
                     <button @click="createHouseReq">Create House</button>
+                </div>
+
+                <div class="block">
+                    <span>Редактирование дома по ID</span>
+                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <input type="text" v-model="House.name" placeholder="Название дома">
+                    <input type="text" v-model="House.address" placeholder="Адрес объекта">
+                    <input type="number" min="2000" max="3000" v-model="House.built_year" placeholder="Год сдачи">
+                    <input type="number" min="1" max="4" v-model="House.built_quarter" placeholder="Квартал сдачи">
+                    <button @click="patchHouseById">Patch House</button>
+                </div>
+
+                <div class="block">
+                    <span>Получить дом по ID</span>
+                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <button @click="getHouseById">GET House by ID</button>
+                </div>
+
+                <div class="block">
+                    <span>Получить квартиры по ID дома</span>
+                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <button @click="getFlatsByHouseId">GET Flats by House ID</button>
                 </div>
             </div>
 
             <div v-if="currentTab == 'section'" class="tab">
                 <div class="block">
                     <span>Создание подъезда</span>
-                    <input type="text" v-model="Section.house_id" placeholder="ID объекта">
-                    <input type="text" v-model="Section.number" placeholder="Название дома">
-                    <input type="text" v-model="Section.floors" placeholder="Адрес объекта">
-                    <input type="number" min="2000" max="3000" v-model="Section.flats_on_floor" placeholder="Год сдачи">
-                    <input type="number" min="1" max="4" v-model="Section.starting_flat_number" placeholder="Квартал сдачи">
+                    <input type="text" v-model="Section.house_id" placeholder="ID дома">
+                    <input type="text" v-model="Section.number" placeholder="Номер подъезда">
+                    <input type="text" v-model="Section.floors" placeholder="Количество этажей">
+                    <input type="number" min="2000" max="3000" v-model="Section.flats_on_floor" placeholder="Количество квартир на этаже">
+                    <input type="number" min="1" max="4" v-model="Section.starting_flat_number" placeholder="Номер с которого начинается нумерация квартир">
                     <button @click="createSectionReq">Create Section</button>
+                </div>
+
+                <div class="block">
+                    <span>Получить подъезд по ID</span>
+                    <input type="text" v-model.number="Section.id" placeholder="ID дома">
+                    <button @click="getSectionById">GET Section by ID</button>
                 </div>
             </div>
 
             <div v-if="currentTab == 'flat'" class="tab">
+                <div class="block">
+                    <span>Редактирование квартир по ID</span>
+                    <input type="text" v-model.number="Flat.flats" placeholder="Массив ID квартир">
+                    <input type="number" step="0.1" v-model="Flat.size" placeholder="Площадь">
+                    <input type="number" min="0" max="6" v-model="Flat.rooms" placeholder="Количество комнат">
+                    <input type="number" min="0" v-model="Flat.price" placeholder="Стоимость квартиры">
+                    <button @click="patchFlatsById">Patch Flats</button>
+                </div>
 
+                <div class="block">
+                    <span>Обновление статуса квартиры по ID</span>
+                    <input type="text" v-model.number="Flat.id" placeholder="ID дома">
+                    <select v-model="Flat.status">
+                        <option value="undefined" selected disabled>Статус квартиры</option>
+                        <option value="free">Свободна</option>
+                        <option value="reserved">Забронирована</option>
+                        <option value="sold">Продана</option>
+                    </select>
+                    <button @click="patchFlatStatusById">Patch Flat</button>
+                </div>
             </div>
         </div>
 
@@ -88,12 +135,16 @@
             <div class="block">
                 <span>Token: {{token || "отсутствует"}}</span>
                 <button @click="deleteToken">Удалить токен</button>
+                <select v-model="HOST">
+                    <option value="" selected>Localhost</option>
+                    <option value="http://192.168.1.203:3000">Комп в 218</option>
+                </select>
             </div>
 
             <div id="response">
                 <h1>Ответ сервера:</h1>
-                <p style="white-space: pre-wrap; background-color: rgb(240, 255, 240);">{{formatJSON(goodRes)}}</p>
-                <p style="white-space: pre-wrap; background-color: rgb(255, 240, 240);">{{formatJSON(badRes)}}</p>
+                <p v-if="goodRes.status" style="white-space: pre-wrap; background-color: rgb(240, 255, 240);">{{formatJSON(goodRes)}}</p>
+                <p v-if="badRes.status" style="white-space: pre-wrap; background-color: rgb(255, 240, 240);">{{formatJSON(badRes)}}</p>
             </div>
         </div>
     </div>
@@ -114,119 +165,255 @@
                     Section: {},
                     Flat: {},
 
-                    HOST: /*'http://192.168.1.203:3000'*/''
+                    HOST: ''
                 }
             },
             methods: {
                 loginReq() {
+                    const that = this 
                     axios({
-                        url: `${this.HOST}/api/login`,
+                        url: `${that.HOST}/api/login`,
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json"
                         },
                         data: {
-                            "login": this.login,
-                            "password": this.password
+                            "login": that.login,
+                            "password": that.password
                         }
                     })
                     .then(response => {
-                        this.setGoodRes(response)
-                        this.token = response.data.data.token
+                        that.setGoodRes(response)
+                        that.token = response.data.data.token
                     })
-                    .catch(this.setBadRes)
+                    .catch(that.setBadRes)
                 },
 
                 getProjects() {
+                    const that = this 
                     axios({
-                        url: `${this.HOST}/api/project`,
+                        url: `${that.HOST}/api/project`,
                         method: 'get',
                         headers: {
-                            "authorization": this.token
+                            "authorization": that.token
                         }
                     })
-                    .then(this.setGoodRes)
-                    .catch(this.setBadRes)
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
                 },
 
                 createProjectReq() {
+                    const that = this 
                     axios({
-                        url: `${this.HOST}/api/project`,
+                        url: `${that.HOST}/api/project`,
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json",
-                            "authorization": this.token
+                            "authorization": that.token
                         },
                         data: {
-                            "name": this.Project.name,
-                            "coords": this.Project.coords,
-                            "district": this.Project.district,
-                            "website": this.Project.website
+                            "name": that.Project.name,
+                            "coords": that.Project.coords,
+                            "district": that.Project.district,
+                            "website": that.Project.website
                         }
                     })
                     .then(response => {
-                        this.setGoodRes(response)
-                        this.Project.Id = response.data.data.id
+                        that.setGoodRes(response)
+                        that.Project.id = response.data.data.id
                     })
-                    .catch(this.setBadRes)
+                    .catch(that.setBadRes)
                 },
 
                 getProjectById() {
+                    const that = this 
                     axios({
-                        url: `${this.HOST}/api/project/${this.Project.Id}`,
+                        url: `${that.HOST}/api/project/${that.Project.id}`,
                         method: 'get',
                         headers: {
-                            "authorization": this.token
+                            "authorization": that.token
                         }
                     })
-                    .then(this.setGoodRes)
-                    .catch(this.setBadRes)
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
                 },
 
                 patchProjectById() {
+                    const that = this 
                     axios({
-                        url: `${this.HOST}/api/project/${this.Project.Id}`,
+                        url: `${that.HOST}/api/project/${that.Project.id}`,
                         method: 'patch',
                         headers: {
                             "Content-Type": "application/json",
-                            "authorization": this.token
+                            "authorization": that.token
                         },
                         data: {
-                            "name": this.Project.name,
-                            "coords": this.Project.coords,
-                            "district": this.Project.district,
-                            "website": this.Project.website
+                            "name": that.Project.name,
+                            "coords": that.Project.coords,
+                            "district": that.Project.district,
+                            "website": that.Project.website
                         }
                     })
-                    .then(this.setGoodRes)
-                    .catch(this.setBadRes)
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
                 },
 
+                createHouseReq() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/house`,
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": that.token
+                        },
+                        data: {
+                            "project_id": that.House.project_id,
+                            "name": that.House.name,
+                            "address": that.House.address,
+                            "built_year": that.House.built_year,
+                            "built_quarter": that.House.built_quarter
+                        }
+                    })
+                    .then(response => {
+                        that.setGoodRes(response)
+                        that.House.id = response.data.data.id
+                    })
+                    .catch(that.setBadRes)
+                },
 
+                patchHouseById() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/house/${that.House.id}`,
+                        method: 'patch',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": that.token
+                        },
+                        data: {
+                            "name": that.House.name,
+                            "address": that.House.address,
+                            "built_year": that.House.built_year,
+                            "built_quarter": that.House.built_quarter
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
+                getHouseById() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/house/${that.House.id}`,
+                        method: 'get',
+                        headers: {
+                            "authorization": that.token
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
+                getFlatsByHouseId() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/house/${that.House.id}/flats`,
+                        method: 'get',
+                        headers: {
+                            "authorization": that.token
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
+                createSectionReq() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/section`,
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": that.token
+                        },
+                        data: {
+                            "house_id": that.Section.house_id,
+                            "number": that.Section.number,
+                            "floors": that.Section.floors,
+                            "flats_on_floor": that.Section.flats_on_floor,
+                            "starting_flat_number": that.Section.starting_flat_number
+                        }
+                    })
+                    .then(response => {
+                        that.setGoodRes(response)
+                        that.Section.id = response.data.data.id
+                    })
+                    .catch(that.setBadRes)
+                },
 
+                getSectionById() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/section/${that.Section.id}`,
+                        method: 'get',
+                        headers: {
+                            "authorization": that.token
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
+                patchFlatsById() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/flat`,
+                        method: 'patch',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": that.token
+                        },
+                        data: {
+                            "flats": that.Flat.flats.split(',').map((el) => +el),
+                            "size": that.Flat.size,
+                            "rooms": that.Flat.rooms,
+                            "price": that.Flat.price
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
+                patchFlatStatusById() {
+                    const that = this 
+                    axios({
+                        url: `${that.HOST}/api/flat/${that.Flat.id}`,
+                        method: 'patch',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "authorization": that.token
+                        },
+                        data: {
+                            "status": that.Flat.status,
+                        }
+                    })
+                    .then(that.setGoodRes)
+                    .catch(that.setBadRes)
+                },
 
-
-
-
-
-
-                setGoodRes(res) {
+                setGoodRes(response) {
                     this.badRes = {}
-                    this.goodRes.status = res.status
-                    this.goodRes.contentType = res.headers["content-type"]
-                    this.goodRes.body = res.data
+                    this.goodRes.status = response.status
+                    this.goodRes.contentType = response.headers["content-type"]
+                    this.goodRes.body = response.data
                 },
 
-                setBadRes(err) {
+                setBadRes(error) {
                     this.goodRes = {}
-                    this.badRes.status = err.response.status
-                    this.badRes.contentType = err.response.headers["content-type"]
-                    this.badRes.body = err.response.data
+                    this.badRes.status = error.response.status
+                    this.badRes.contentType = error.response.headers["content-type"]
+                    this.badRes.body = error.response.data
                 },
 
                 formatJSON(data) {
