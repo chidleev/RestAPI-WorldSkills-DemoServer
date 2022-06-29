@@ -29,7 +29,7 @@
     
                 <div class="block">
                     <span>Редактирование проекта по ID</span>
-                    <input type="text" v-model.number="Project.id" placeholder="ID объекта">
+                    <input type="text" v-model="Project.id" placeholder="ID объекта">
                     <input type="text" v-model="Project.name" placeholder="Название объекта">
                     <input type="text" v-model="Project.coords" placeholder="Координаты  объекта">
                     <input type="text" v-model="Project.district" placeholder="Район города">
@@ -45,7 +45,7 @@
     
                 <div class="block">
                     <span>Получить проект по ID</span>
-                    <input type="text" v-model.number="Project.id" placeholder="ID объекта">
+                    <input type="text" v-model="Project.id" placeholder="ID объекта">
                     <button @click="getProjectById">GET Project by ID</button>
                 </div>
             </div>
@@ -63,7 +63,7 @@
 
                 <div class="block">
                     <span>Редактирование дома по ID</span>
-                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <input type="text" v-model="House.id" placeholder="ID дома">
                     <input type="text" v-model="House.name" placeholder="Название дома">
                     <input type="text" v-model="House.address" placeholder="Адрес объекта">
                     <input type="number" min="2000" max="3000" v-model="House.built_year" placeholder="Год сдачи">
@@ -73,13 +73,13 @@
 
                 <div class="block">
                     <span>Получить дом по ID</span>
-                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <input type="text" v-model="House.id" placeholder="ID дома">
                     <button @click="getHouseById">GET House by ID</button>
                 </div>
 
                 <div class="block">
                     <span>Получить квартиры по ID дома</span>
-                    <input type="text" v-model.number="House.id" placeholder="ID дома">
+                    <input type="text" v-model="House.id" placeholder="ID дома">
                     <button @click="getFlatsByHouseId">GET Flats by House ID</button>
                 </div>
             </div>
@@ -97,7 +97,7 @@
 
                 <div class="block">
                     <span>Получить подъезд по ID</span>
-                    <input type="text" v-model.number="Section.id" placeholder="ID дома">
+                    <input type="text" v-model="Section.id" placeholder="ID дома">
                     <button @click="getSectionById">GET Section by ID</button>
                 </div>
             </div>
@@ -105,7 +105,7 @@
             <div v-if="currentTab == 'flat'" class="tab">
                 <div class="block">
                     <span>Редактирование квартир по ID</span>
-                    <input type="text" v-model.number="Flat.flats" placeholder="Массив ID квартир">
+                    <input type="text" v-model.trim="Flat.flats" placeholder="Массив ID квартир">
                     <input type="number" step="0.1" v-model="Flat.size" placeholder="Площадь">
                     <input type="number" min="0" max="6" v-model="Flat.rooms" placeholder="Количество комнат">
                     <input type="number" min="0" v-model="Flat.price" placeholder="Стоимость квартиры">
@@ -114,7 +114,7 @@
 
                 <div class="block">
                     <span>Обновление статуса квартиры по ID</span>
-                    <input type="text" v-model.number="Flat.id" placeholder="ID дома">
+                    <input type="text" v-model="Flat.id" placeholder="ID квартиры">
                     <select v-model="Flat.status">
                         <option value="undefined" selected disabled>Статус квартиры</option>
                         <option value="free">Свободна</option>
@@ -122,6 +122,13 @@
                         <option value="sold">Продана</option>
                     </select>
                     <button @click="patchFlatStatusById">Patch Flat</button>
+                </div>
+            </div>
+
+            <div class="tab">
+                <div id="response">
+                    <h1>Параметры запроса:</h1>
+                    <p v-if="requestOptions.url" style="white-space: pre-wrap; background-color: rgb(240, 240, 240);">{{formatJSON(requestOptions)}}</p>
                 </div>
             </div>
         </div>
@@ -136,8 +143,8 @@
                 <span>Token: {{token || "отсутствует"}}</span>
                 <button @click="deleteToken">Удалить токен</button>
                 <select v-model="HOST">
-                    <option value="" selected>Localhost</option>
-                    <option value="http://192.168.1.203:3000">Комп в 218</option>
+                    <option value="http://192.168.1.203:3000" selected>Комп в 218</option>
+                    <option value="">Localhost</option>
                 </select>
             </div>
 
@@ -157,21 +164,22 @@
                     currentTab: 'project',
                     login: "",
                     password: "",
+                    requestOptions: {},
                     goodRes: {},
                     badRes: {},
-                    token: 1,
+                    token: null,
                     Project: {},
                     House: {},
                     Section: {},
                     Flat: {},
 
-                    HOST: ''
+                    HOST: 'http://192.168.1.203:3000'
                 }
             },
             methods: {
                 loginReq() {
-                    const that = this 
-                    axios({
+                    const that = this
+                    that.requestOptions = {
                         url: `${that.HOST}/api/login`,
                         method: 'post',
                         headers: {
@@ -181,7 +189,8 @@
                             "login": that.login,
                             "password": that.password
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(response => {
                         that.setGoodRes(response)
                         that.token = response.data.data.token
@@ -191,20 +200,21 @@
 
                 getProjects() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/project`,
                         method: 'get',
                         headers: {
                             "authorization": that.token
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 createProjectReq() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/project`,
                         method: 'post',
                         headers: {
@@ -217,7 +227,8 @@
                             "district": that.Project.district,
                             "website": that.Project.website
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(response => {
                         that.setGoodRes(response)
                         that.Project.id = response.data.data.id
@@ -227,20 +238,21 @@
 
                 getProjectById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/project/${that.Project.id}`,
                         method: 'get',
                         headers: {
                             "authorization": that.token
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 patchProjectById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/project/${that.Project.id}`,
                         method: 'patch',
                         headers: {
@@ -253,14 +265,15 @@
                             "district": that.Project.district,
                             "website": that.Project.website
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 createHouseReq() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/house`,
                         method: 'post',
                         headers: {
@@ -274,7 +287,8 @@
                             "built_year": that.House.built_year,
                             "built_quarter": that.House.built_quarter
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(response => {
                         that.setGoodRes(response)
                         that.House.id = response.data.data.id
@@ -284,7 +298,7 @@
 
                 patchHouseById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/house/${that.House.id}`,
                         method: 'patch',
                         headers: {
@@ -297,40 +311,43 @@
                             "built_year": that.House.built_year,
                             "built_quarter": that.House.built_quarter
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 getHouseById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/house/${that.House.id}`,
                         method: 'get',
                         headers: {
                             "authorization": that.token
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 getFlatsByHouseId() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/house/${that.House.id}/flats`,
                         method: 'get',
                         headers: {
                             "authorization": that.token
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 createSectionReq() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/section`,
                         method: 'post',
                         headers: {
@@ -344,7 +361,8 @@
                             "flats_on_floor": that.Section.flats_on_floor,
                             "starting_flat_number": that.Section.starting_flat_number
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(response => {
                         that.setGoodRes(response)
                         that.Section.id = response.data.data.id
@@ -354,20 +372,21 @@
 
                 getSectionById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/section/${that.Section.id}`,
                         method: 'get',
                         headers: {
                             "authorization": that.token
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 patchFlatsById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/flat`,
                         method: 'patch',
                         headers: {
@@ -380,14 +399,15 @@
                             "rooms": that.Flat.rooms,
                             "price": that.Flat.price
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },
 
                 patchFlatStatusById() {
                     const that = this 
-                    axios({
+                    that.requestOptions = {
                         url: `${that.HOST}/api/flat/${that.Flat.id}`,
                         method: 'patch',
                         headers: {
@@ -397,7 +417,8 @@
                         data: {
                             "status": that.Flat.status,
                         }
-                    })
+                    }
+                    axios(that.requestOptions)
                     .then(that.setGoodRes)
                     .catch(that.setBadRes)
                 },

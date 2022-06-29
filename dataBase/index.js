@@ -44,13 +44,20 @@ dataBase.Sections.belongsTo(dataBase.Houses, {
   as: 'house_id'
 })
 
+dataBase.Houses.hasMany(dataBase.Flats, {
+  as: 'flats',
+	onDelete: 'CASCADE',
+	onUpdate: 'CASCADE'
+})
+dataBase.Flats.belongsTo(dataBase.Houses, {
+  as: 'house_id'
+})
+
 dataBase.Sections.hasMany(dataBase.Flats, {
   as: 'flats',
 	onDelete: 'CASCADE',
 	onUpdate: 'CASCADE'
 })
-dataBase.Flats.belongsTo(dataBase.Sections, {
-  as: 'section_id'
-})
+dataBase.Flats.belongsTo(dataBase.Sections)
 
 module.exports = dataBase

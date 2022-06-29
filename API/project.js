@@ -5,14 +5,54 @@ const dataBase = require('../dataBase')
 
 const API = express()
 
+function groupByKey(array, key) {
+    return array
+        .reduce((hash, obj) => {
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, { [obj[key]]: (hash[obj[key]] || []).concat(obj) })
+        }, {})
+}
+
 API.get('/', (req, res) => {
     dataBase.Projects.findAll({
-        attributes: ['id', 'name']
+        attributes: ['id', 'name'],
+        include: [{
+            model: dataBase.Houses,
+            as: 'houses',
+            include: [{
+                model: dataBase.Flats,
+                as: 'flats',
+                attributes: ['status']
+            }]
+        }]
     })
         .then(projects => {
+            const allFlats = {}
+            projects.forEach(project => {
+                var flats = []
+                project.houses.forEach(house => {
+                    flats = flats.concat(house.flats)
+                })
+                allFlats[project.id] = flats
+            });
+
+            const statuses = {}
+            const projectObjects = []
+            projects.forEach(project => {
+                statuses[project.id] = groupByKey(allFlats[project.id], 'status')
+                projectObjects.push({
+                    id: project.id,
+                    name: project.name,
+                    flat_statuses: {
+                        "free": (statuses[project.id]['free'])? statuses[project.id]['free'].length : 0, 
+                        "reserved": (statuses[project.id]['reserved'])? statuses[project.id]['reserved'].length : 0, 
+                        "sold": (statuses[project.id]['sold'])? statuses[project.id]['sold'].length : 0,
+                    }
+                })
+            })
             res.json({
                 data: {
-                    projects: projects
+                    projects: projectObjects
                 }
             })
         })

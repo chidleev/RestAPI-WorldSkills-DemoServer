@@ -157,4 +157,34 @@ API.patch('/:houseId', (req, res) => {
         })
 })
 
+API.get('/:houseId/flats', (req, res) => {
+    dataBase.Houses.findByPk(req.params.houseId, {
+        attributes: [],
+        include: [{
+            model: dataBase.Flats,
+            as: 'flats',
+            attributes: {
+                exclude: ['HouseId', 'houseIdId', 'sectionId', 'sectionIdId']
+            },
+            include: [{
+                model: dataBase.Sections,
+                attributes: ['id', 'number', 'floors', 'flats_on_floor']
+            }]
+        }]
+    })
+        .then(house => {
+            if (house) {
+                res.json({
+                    data: house
+                })
+            }
+            else res.sendStatus(404)
+        })
+        .catch(error => {
+            error.code = 500
+            error.message = "Не удалось получить данные о доме"
+            res.status(error.code).json({ error })
+        })
+})
+
 module.exports = API

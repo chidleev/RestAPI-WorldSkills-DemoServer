@@ -1,5 +1,5 @@
 module.exports = function(client, DataTypes) {
-    return client.define("Sections", {
+    return client.define("sections", {
         number: {
             type: DataTypes.INTEGER,
             allowNull: false
